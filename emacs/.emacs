@@ -21,6 +21,9 @@
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 
+;;; Prettify symbols. Displays lambda as the symbol for example.
+(global-prettify-symbols-mode 1)
+
 
 ;;; Erlang
 ;; (add-to-list 'load-path "/opt/local/lib/erlang/lib/tools-3.4.1/emacs/")
