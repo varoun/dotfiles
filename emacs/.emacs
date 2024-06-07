@@ -1,19 +1,10 @@
-;;;; Varoun's .emacs
+;;;; Emacs config
 
-;;; Kill the toolbar
-(when (fboundp 'tool-bar-mode)
-  (tool-bar-mode -1))
+;;; To fix signature errors
+;; https://emacs.stackexchange.com/questions/233/how-to-proceed-on-package-el-signature-check-failure
 
-;; mode line settings
-(line-number-mode t)
-(column-number-mode t)
-(size-indication-mode t)
-
-;; Newline at end of file
-(setq require-final-newline t)
-
-;; Wrap lines at 80 characters
-(setq-default fill-column 80)
+;;; Seq version errors
+;; https://emacs.stackexchange.com/questions/80871/how-to-provide-updated-seq-package-to-magit
 
 ;;; UTF-8 related.
 (prefer-coding-system 'utf-8)
@@ -24,19 +15,41 @@
 ;;; Prettify symbols. Displays lambda as the symbol for example.
 (global-prettify-symbols-mode 1)
 
+;;; Lambda Themes
+;; (add-to-list 'load-path "~/apps/lambda-themes/")
+;; (require 'lambda-themes)
+;; (load-theme 'lambda-dark-faded t)
 
-;;; Erlang
-;; (add-to-list 'load-path "/opt/local/lib/erlang/lib/tools-3.4.1/emacs/")
-;; (setq erlang-root-dir "/opt/local/lib/erlang/")
-;; (add-to-list 'exec-path "/opt/local/lib/erlang/bin/")
-;; (require 'erlang-start)
+;;; Org Mode
 
+;; Global behaviour
+;;(setq org-startup-indented t)
+(setq org-startup-folded t)
+
+;; Org TODOs
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "Scheduled(s)" "InProgress(i)" "Forwarded(f)"
+		  "Delegated(d)" "|" "Killed(k)" "Completed(c)")))
+
+;; Progress Log TODO state changes in a separate drawer.
+(setq org-log-into-drawer t)
+;; TODO sequences
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/org/plan.org" "Tasks")
+	 "** TODO %? %i [/]\n")))
+
+;; Org Agenda
+(setq org-agenda-files '("~/org/plan.org"))
+(global-set-key (kbd "C-c l") #'org-store-link)
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
 
 ;;; MELPA
 (require 'package)
 (add-to-list 'package-archives
              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize)
+
 
 ;;; use-package
 (unless (package-installed-p 'use-package)
@@ -46,27 +59,17 @@
 ;;; Manual Load path
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 
+;;; Solarized themes.
+;; (use-package solarized-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'solarized-dark t))
 
-;;;-----------------------------------------------------------------------------
-;;; use-package based configs.
-;;;-----------------------------------------------------------------------------
-
-;;; Setup PATH correctly on MACs
-(use-package exec-path-from-shell
-  :if (memq window-system '(mac ns x))
+;;; Zenburn Theme
+(use-package zenburn-theme
   :ensure t
   :config
-  (exec-path-from-shell-initialize))
-
-;;; Elec pair
-(use-package elec-pair
-  :config
-  (electric-pair-mode +1))
-
-;; highlight the current line
-(use-package hl-line
-  :config
-  (global-hl-line-mode +1))
+  (load-theme 'zenburn t))
 
 ;;; Autocompletion using Company
 (use-package company
@@ -78,29 +81,6 @@
   (setq company-idle-delay 1.0)
   (setq company-minimum-prefix-length 1)
   (setq company-tooltip-align-annotations t))
-
-;;; Helm
-(use-package helm
-  :ensure t
-  :init
-  (require 'helm-config)
-  :config
-  (global-set-key (kbd "M-x") #'helm-M-x)
-  (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
-  (global-set-key (kbd "C-x C-f") #'helm-find-files)
-  (helm-mode 1))
-
-;;; Projectile
-(use-package projectile
-  :ensure t
-  :config
-  (projectile-mode))
-
-;;; Projectile + Helm
-(use-package helm-projectile
-  :ensure t
-  :config
-  (helm-projectile-on))
 
 ;;; Magit
 (use-package magit
@@ -116,15 +96,6 @@
   (add-hook 'lisp-mode-hook #'paredit-mode)
   (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode))
 
-;;; Rainbow delimiters.
-(use-package rainbow-delimiters
-  :ensure t)
-
-(use-package rainbow-mode
-  :ensure t
-  :config
-  (add-hook 'prog-mode-hook #'rainbow-mode))
-
 ;;; Undo
 (use-package undo-tree
   :ensure t
@@ -135,33 +106,44 @@
   (setq undo-tree-auto-save-history t)
   (global-undo-tree-mode +1))
 
-;;; Theme
-(use-package zenburn-theme
-  :ensure t
-  :config
-  (load-theme 'zenburn t))
-
 ;;; Cleanup whitespace
-;; (use-package whitespace
-;;   :init
-;;   (dolist (hook '(prog-mode-hook text-mode-hook))
-;;     (add-hook hook #'whitespace-mode))
-;;   (add-hook 'before-save-hook #'whitespace-cleanup)
-;;   :config
-;;   (setq whitespace-line-column 80) ;; limit line length
-;;   (setq whitespace-style '(face tabs empty trailing lines-tail)))
+(use-package whitespace
+  :init
+  (dolist (hook '(prog-mode-hook text-mode-hook))
+    (add-hook hook #'whitespace-mode))
+  (add-hook 'before-save-hook #'whitespace-cleanup)
+  :config
+  ;(setq whitespace-line-column 80) ;; limit line length
+  ;(setq whitespace-style '(face tabs empty trailing lines-tail))
+  (setq whitespace-style '(empty trailing lines-tail)))
 
-
-;;; Slime
 (use-package slime
   :ensure t
   :config
-  (setq inferior-lisp-program "/Users/varoun/apps/ccl/dx86cl64"))
+  (setq inferior-lisp-program "/usr/bin/sbcl"))
 
-;;; Geiser
+
+;;; Erlang
+
+;; prevent command getting duplicated in output.
+;; Some ref - https://github.com/emacs-ess/ess-stata-mode/issues/1
+;;(setq comint-process-echoes t)
+
+(add-to-list 'load-path "/usr/lib/erlang/lib/tools-3.5.3/emacs")
+(setq erlang-root-dir "/usr/lib/erlang/")
+(add-to-list 'exec-path "/usr/lib/erlang/bin/")
+(require 'erlang-start)
+
+;;; Scheme
 (use-package geiser
   :ensure t
   :config
   (setq geiser-active-implementations '(chez mit))
-  (setq geiser-mit-binary "/opt/mit-scheme/bin/mit-scheme"))
+  (setq geiser-mit-binary "/usr/bin/mit-scheme")
+  (setq geiser-chez-binary "/usr/bin/chezscheme"))
 
+(use-package geiser-mit
+  :ensure t)
+
+(use-package geiser-chez
+  :ensure t)
