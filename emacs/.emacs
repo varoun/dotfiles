@@ -1,89 +1,5 @@
 ;;;; Varoun's .emacs
 
-;;;; All the NANO Emacs Stuff
-(setq nano-font-family-monospaced "Roboto Mono")
-(setq nano-font-family-proportional nil)
-(setq nano-font-size 12)
-
-;;; Copied from nano.el
-;; Path to nano emacs modules (mandatory)
-(add-to-list 'load-path "c:/Users/accou/apps/nano-emacs")
-(add-to-list 'load-path ".")
-
-;; Default layout (optional)
-(require 'nano-layout)
-
-;; Theming Command line options (this will cancel warning messages)
-(add-to-list 'command-switch-alist '("-dark"   . (lambda (args))))
-(add-to-list 'command-switch-alist '("-light"  . (lambda (args))))
-(add-to-list 'command-switch-alist '("-default"  . (lambda (args))))
-(add-to-list 'command-switch-alist '("-no-splash" . (lambda (args))))
-(add-to-list 'command-switch-alist '("-no-help" . (lambda (args))))
-(add-to-list 'command-switch-alist '("-compact" . (lambda (args))))
-
-
-;; Customize support for 'emacs -q' (Optional)
-;; You can enable customizations by creating the nano-custom.el file
-;; with e.g. `touch nano-custom.el` in the folder containing this file.
-(let* ((this-file  (or load-file-name (buffer-file-name)))
-       (this-dir  (file-name-directory this-file))
-       (custom-path  (concat this-dir "nano-custom.el")))
-  (when (and (eq nil user-init-file)
-             (eq nil custom-file)
-             (file-exists-p custom-path))
-    (setq user-init-file this-file)
-    (setq custom-file custom-path)
-    (load custom-file)))
-
-;; Theme
-(require 'nano-faces)
-(require 'nano-theme)
-(require 'nano-theme-dark)
-(require 'nano-theme-light)
-
-(cond
- ((member "-default" command-line-args) t)
- ((member "-dark" command-line-args) (nano-theme-set-dark))
- (t (nano-theme-set-dark)))
-(call-interactively 'nano-refresh-theme)
-
-;; Nano default settings (optional)
-(require 'nano-defaults)
-
-;; Nano session saving (optional)
-(require 'nano-session)
-
-;; Nano header & mode lines (optional)
-(require 'nano-modeline)
-
-;; Nano key bindings modification (optional)
-(require 'nano-bindings)
-
-;; Compact layout (need to be loaded after nano-modeline)
-(when (member "-compact" command-line-args)
-  (require 'nano-compact))
-
-;; Nano counsel configuration (optional)
-;; Needs "counsel" package to be installed (M-x: package-install)
-;; (require 'nano-counsel)
-
-;; Welcome message (optional)
-(let ((inhibit-message t))
-  (message "Welcome to GNU Emacs / N Λ N O edition")
-  (message (format "Initialization time: %s" (emacs-init-time))))
-
-;; Splash (optional)
-(unless (member "-no-splash" command-line-args)
-  (require 'nano-splash))
-
-;; Help (optional)
-(unless (member "-no-help" command-line-args)
-  (require 'nano-help))
-
-(provide 'nano)
-
-
-
 ;;;; Emacs config
 
 ;;; To fix signature errors
@@ -101,6 +17,9 @@
 ;;; Prettify symbols. Displays lambda as the symbol for example.
 (global-prettify-symbols-mode 1)
 
+;;; Make M-/ Comments a region.
+
+(global-set-key "/" 'comment-region)
 
 ;;; Org Mode
 
@@ -117,11 +36,11 @@
 (setq org-log-into-drawer t)
 ;; TODO sequences
 (setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "c:/Users/accou/org/plan.org" "Tasks")
+      '(("t" "Todo" entry (file+headline "~/org/plan.org" "Tasks")
 	 "** TODO %? %i [/]\n")))
 
 ;; Org Agenda
-(setq org-agenda-files '("c:/Users/accou/org/plan.org"))
+(setq org-agenda-files '("~/org/plan.org"))
 (global-set-key (kbd "C-c l") #'org-store-link)
 (global-set-key (kbd "C-c a") #'org-agenda)
 (global-set-key (kbd "C-c c") #'org-capture)
@@ -141,12 +60,25 @@
 ;;; Manual Load path
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 
+;;; Doom themes
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-one t)
 
-;;; Zenburn Theme
-;; (use-package zenburn-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'zenburn t))
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+
 
 ;;; Autocompletion using Company
 (use-package company
@@ -197,7 +129,6 @@
 (use-package slime
   :ensure t
   :config
-  ;(setq inferior-lisp-program "c:/Users/accou/apps/ccl-1.12.2-windowsx86/ccl/wx86cl64.exe")
   (setq inferior-lisp-program "sbcl"))
 
 
@@ -207,15 +138,16 @@
 ;; Some ref - https://github.com/emacs-ess/ess-stata-mode/issues/1
 ;;(setq comint-process-echoes t)
 
-;; (add-to-list 'load-path "c:/Program Files/Erlang OTP/Lib/tools-4.0")
+(setq comint-process-echoes t)
+(add-to-list 'load-path "/usr/lib/erlang/lib/tools-3.5.3/emacs")
+(setq erlang-root-dir "/usr/lib/erlang")
+(add-to-list 'exec-path "/usr/lib/erlang/bin")
+(require 'erlang-start)
+
+;; (add-to-list 'load-path "c:/Program Files/Erlang OTP/lib/tools-4.0/emacs")
 ;; (setq erlang-root-dir "C:/Program Files/Erlang OTP")
 ;; (add-to-list 'exec-path "C:/Program Files/Erlang OTP/bin")
 ;; (require 'erlang-start)
-
-(add-to-list 'load-path "c:/Program Files/Erlang OTP/lib/tools-4.0/emacs")
-(setq erlang-root-dir "C:/Program Files/Erlang OTP")
-(add-to-list 'exec-path "C:/Program Files/Erlang OTP/bin")
-(require 'erlang-start)
 
 
 ;;; Scheme
@@ -231,3 +163,17 @@
 
 (use-package geiser-chez
   :ensure t)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(seq geiser-chez geiser-mit geiser slime undo-tree paredit magit company use-package)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
