@@ -21,6 +21,9 @@
 
 (global-set-key "/" 'comment-region)
 
+;;; Display line numbers
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
 ;;; Org Mode
 
 ;; Global behaviour
@@ -61,24 +64,28 @@
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 
 ;;; Doom themes
-(use-package doom-themes
+;; (use-package doom-themes
+;;   :ensure t
+;;   :config
+;;   ;; Global settings (defaults)
+;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+;;         doom-themes-enable-italic t) ; if nil, italics is universally disabled
+;;   (load-theme 'doom-one t)
+
+;;   ;; Enable flashing mode-line on errors
+;;   (doom-themes-visual-bell-config)
+;;   ;; Enable custom neotree theme (all-the-icons must be installed!)
+;;   (doom-themes-neotree-config)
+;;   ;; or for treemacs users
+;;   (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+;;   (doom-themes-treemacs-config)
+;;   ;; Corrects (and improves) org-mode's native fontification.
+;;   (doom-themes-org-config))
+
+(use-package nord-theme
   :ensure t
   :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-one t)
-
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-neotree-config)
-  ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
-  (doom-themes-treemacs-config)
-  ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config))
-
+  (load-theme 'nord t))
 
 ;;; Autocompletion using Company
 (use-package company
@@ -138,16 +145,16 @@
 ;; Some ref - https://github.com/emacs-ess/ess-stata-mode/issues/1
 ;;(setq comint-process-echoes t)
 
-(setq comint-process-echoes t)
-(add-to-list 'load-path "/usr/lib/erlang/lib/tools-3.5.3/emacs")
-(setq erlang-root-dir "/usr/lib/erlang")
-(add-to-list 'exec-path "/usr/lib/erlang/bin")
-(require 'erlang-start)
-
-;; (add-to-list 'load-path "c:/Program Files/Erlang OTP/lib/tools-4.0/emacs")
-;; (setq erlang-root-dir "C:/Program Files/Erlang OTP")
-;; (add-to-list 'exec-path "C:/Program Files/Erlang OTP/bin")
+;; (setq comint-process-echoes t)
+;; (add-to-list 'load-path "/usr/lib/erlang/lib/tools-3.5.3/emacs")
+;; (setq erlang-root-dir "/usr/lib/erlang")
+;; (add-to-list 'exec-path "/usr/lib/erlang/bin")
 ;; (require 'erlang-start)
+
+(add-to-list 'load-path "c:/Program Files/Erlang OTP/lib/tools-4.1/emacs")
+(setq erlang-root-dir "C:/Program Files/Erlang OTP")
+(add-to-list 'exec-path "C:/Program Files/Erlang OTP/bin")
+(require 'erlang-start)
 
 
 ;;; Scheme
@@ -164,16 +171,17 @@
 (use-package geiser-chez
   :ensure t)
 
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(seq geiser-chez geiser-mit geiser slime undo-tree paredit magit company use-package)))
+   '(geiser-chez geiser-mit geiser slime undo-tree paredit magit company doom-themes)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((t (:family "Fira Code SemiBold" :foundry "outline" :slant normal :weight semi-bold :height 110 :width normal)))))
